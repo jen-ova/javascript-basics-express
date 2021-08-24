@@ -1,5 +1,6 @@
 const express = require('express');
 const { restart } = require('nodemon');
+
 const {
   sayHello,
   uppercase,
@@ -12,9 +13,19 @@ const { add, subtract, multiply, divide, remainder } = require('./lib/numbers');
 
 const { negate, truthiness, isOdd, startsWith } = require('./lib/booleans');
 
+const {
+  getNthElement,
+  arrayToCSVString,
+  addToArray2,
+  elementsStartingWithAVowel,
+  removeNthElement2,
+} = require('./lib/arrays');
+
 const app = express();
 
 app.use(express.json());
+
+// *** STRINGS ***
 
 app.get('/strings/hello/:string', (req, res) => {
   res.json({ result: sayHello(req.params.string) });
@@ -35,6 +46,8 @@ app.get('/strings/first-characters/:string', (req, res) => {
     res.json({ result: firstCharacters(req.params.string, req.query.length) });
   }
 });
+
+// *** NUMBERS ***
 
 app.get('/numbers/add/:a/and/:b', (req, res) => {
   const a = parseInt(req.params.a);
@@ -109,6 +122,8 @@ app.post('/numbers/remainder', (req, res) => {
   }
 });
 
+// *** BOOLEANS ***
+
 app.post('/booleans/negate', (req, res) => {
   const a = req.body.value;
 
@@ -139,6 +154,44 @@ app.get('/booleans/:string/starts-with/:char', (req, res) => {
   } else {
     res.status(200).json({ result: startsWith(char, string) });
   }
+});
+
+// *** ARRAYS ***
+
+app.post('/arrays/element-at-index/:index', (req, res) => {
+  const { index } = req.params;
+  const { array } = req.body;
+
+  res.status(200).send({ result: getNthElement(index, array) });
+});
+
+app.post('/arrays/to-string', (req, res) => {
+  const { array } = req.body;
+
+  res.status(200).send({ result: arrayToCSVString(array) });
+});
+
+app.post('/arrays/append', (req, res) => {
+  const element = req.body.value;
+  const { array } = req.body;
+
+  res.status(200).send({ result: addToArray2(element, array) });
+});
+
+app.post('/arrays/starts-with-vowel', (req, res) => {
+  const { array } = req.body;
+
+  res.status(200).send({ result: elementsStartingWithAVowel(array) });
+});
+
+app.post('/arrays/remove-element', (req, res) => {
+  const { index } = req.query;
+  const { array } = req.body;
+
+  if (index === undefined) {
+    return res.status(200).send({ result: removeNthElement2(0, array) });
+  }
+  res.status(200).send({ result: removeNthElement2(index, array) });
 });
 
 module.exports = app;
