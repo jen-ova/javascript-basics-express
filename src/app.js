@@ -1,4 +1,5 @@
 const express = require('express');
+const { restart } = require('nodemon');
 const {
   sayHello,
   uppercase,
@@ -8,6 +9,8 @@ const {
 } = require('./lib/strings');
 
 const { add, subtract, multiply, divide, remainder } = require('./lib/numbers');
+
+const { negate, truthiness, isOdd, startsWith } = require('./lib/booleans');
 
 const app = express();
 
@@ -103,6 +106,38 @@ app.post('/numbers/remainder', (req, res) => {
     res.status(400).send({ error: 'Parameters must be valid numbers.' });
   } else {
     res.status(200).send({ result: remainder(req.body.a, req.body.b) });
+  }
+});
+
+app.post('/booleans/negate', (req, res) => {
+  const a = req.body.value;
+
+  res.status(200).send({ result: negate(a) });
+});
+
+app.post('/booleans/truthiness', (req, res) => {
+  const a = req.body.value;
+
+  res.status(200).send({ result: truthiness(a) });
+});
+
+app.get('/booleans/is-odd/:a', (req, res) => {
+  const a = parseInt(req.params.a);
+
+  if (Number.isNaN(Number(a))) {
+    res.status(400).send({ error: 'Parameter must be a number.' });
+  } else {
+    res.status(200).json({ result: isOdd(a) });
+  }
+});
+
+app.get('/booleans/:string/starts-with/:char', (req, res) => {
+  const { string, char } = req.params;
+
+  if (char.length !== 1) {
+    res.status(400).send({ error: 'Parameter "character" must be a single character.' });
+  } else {
+    res.status(200).json({ result: startsWith(char, string) });
   }
 });
 
